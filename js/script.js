@@ -5,12 +5,21 @@ const movieSearchBox = document.getElementById("movie-search-box");
 const searchList = document.getElementById("search-list");
 const resultGrid = document.getElementById("result-grid");
 
+let result = JSON.parse(localStorage.getItem("list"))
+  ? JSON.parse(localStorage.getItem("list"))
+  : [];
+
+function setTodos() {
+  localStorage.setItem("list", JSON.stringify(result));
+}
+
 // load movies from API
 async function loadMovies(searchTerm) {
   const URL = `https://omdbapi.com/?s=${searchTerm}&page=1&apikey=bc100a3f`;
   const res = await fetch(`${URL}`);
   const data = await res.json();
   console.log(data.Search);
+  setTodos();
   if (data.Response == "True") displayMovieList(data.Search);
 }
 
@@ -18,6 +27,7 @@ function findMovies() {
   let searchTerm = movieSearchBox.value.trim();
   if (searchTerm.length > 0) {
     searchList.classList.remove("hide-search-list");
+    setTodos();
     loadMovies(searchTerm);
   } else {
     searchList.classList.add("hide-search-list");
@@ -42,6 +52,7 @@ function displayMovieList(movies) {
             <p>${movies[idx].Year}</p>
         </div>
         `;
+    setTodos();
     searchList.appendChild(movieListItem);
   }
   loadMovieDetails();
@@ -59,6 +70,7 @@ function loadMovieDetails() {
       );
       const movieDetails = await result.json();
       // console.log(movieDetails);
+      setTodos();
       displayMovieDetails(movieDetails);
     });
   });
@@ -88,10 +100,12 @@ function displayMovieDetails(details) {
         }</p>
     </div>
     `;
+    setTodos()
 }
 
 window.addEventListener("click", (event) => {
   if (event.target.className != "form-control") {
+    setTodos()
     searchList.classList.add("hide-search-list");
   }
 });
